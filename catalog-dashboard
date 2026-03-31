@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Performance : Tract Digital</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-light: #eef2ff;
+            --secondary: #0f172a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --slate-50: #f8fafc;
+            --slate-100: #f1f5f9;
+            --slate-200: #e2e8f0;
+            --slate-400: #94a3b8;
+            --slate-500: #64748b;
+            --slate-700: #334155;
+            --slate-900: #0f172a;
+            --white: #ffffff;
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--slate-50);
+            color: var(--slate-900);
+            line-height: 1.5;
+        }
+
+        /* HEADER & FILTERS */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--white);
+            border-bottom: 1px solid var(--slate-200);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-box {
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .title-group h1 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .title-group p {
+            font-size: 0.75rem;
+            color: var(--slate-500);
+        }
+
+        .filters {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .filter-item {
+            background: var(--slate-100);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid var(--slate-200);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        select {
+            background: transparent;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--slate-700);
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--slate-500);
+            text-transform: uppercase;
+        }
+
+        .dot-bar { width: 12px; height: 12px; background: var(--primary); border-radius: 2px; }
+        .dot-line { width: 12px; height: 12px; border: 2px solid #db2777; border-radius: 50%; background: white; }
+
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--slate-200);
+            box-shadow: var(--shadow);
+        }
+
+        /* STRATE 1 : HERO METRICS */
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .hero-card .label {
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--slate-400);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .hero-card .value {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-card .sub-value {
+            font-size: 0.8rem;
+            color: var(--slate-500);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .badge-success { background: #ecfdf5; color: var(--success); }
+        .badge-info { background: #eff6ff; color: var(--primary); }
+
+        .roi-card {
+            background: var(--slate-900);
+            color: white;
+        }
+
+        .roi-card .sub-box {
+            background: #1e293b;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* STRATE 2 : COMBO CHART (Sources) */
+        .chart-container {
+            height: 300px;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding-bottom: 2rem;
+            margin-top: 1rem;
+        }
+
+        .y-axis {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 2rem;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .grid-line {
+            width: 100%;
+            height: 1px;
+            background: var(--slate-100);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .grid-line span {
+            font-size: 10px;
+            color: var(--slate-400);
+            transform: translateY(-50%);
+            background: white;
+            padding-left: 5px;
+        }
+
+        .bar-group {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            z-index: 2;
+        }
+
+        .bar {
+            width: 40px;
+            background: var(--primary);
+            border-radius: 4px 4px 0 0;
+            transition: height 1s ease-out;
+            position: relative;
+        }
+
+        .bar-label {
+            position: absolute;
+            top: -20px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .source-name {
+            position: absolute;
+            bottom: -25px;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--slate-500);
+            white-space: nowrap;
+        }
+
+        .cost-line-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        /* STRATE 3 : IN-TRACT & PRODUCTS */
+        .split-grid {
+            display: grid;
+            grid-template-columns: 30% 1fr;
+            gap: 1.5rem;
+        }
+
+        .gauge-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .gauge-svg {
+            width: 180px;
+            height: 180px;
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg { fill: none; stroke: var(--slate-100); stroke-width: 12; }
+        .gauge-fill { 
+            fill: none; 
+            stroke: var(--primary); 
+            stroke-width: 12; 
+            stroke-linecap: round;
+            stroke-dasharray: 502; /* 2 * PI * 80 */
+            stroke-dashoffset: 291; /* 42% of 502 */
+        }
+
+        .gauge-text {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .gauge-text .pct { font-size: 2.5rem; font-weight: 900; }
+        .gauge-text .txt { font-size: 0.6rem; text-transform: uppercase; color: var(--slate-400); font-weight: bold; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            font-size: 0.7rem;
+            color: var(--slate-400);
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--slate-100);
+        }
+
+        td {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--slate-50);
+            font-size: 0.9rem;
+        }
+
+        .prod-img {
+            width: 40px;
+            height: 40px;
+            background: var(--slate-100);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .ratio-tag {
+            background: var(--slate-900);
+            color: white;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 900;
+            font-size: 0.8rem;
+        }
+
+        /* STRATE 4 : BASKET QUALITY */
+        .basket-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        .basket-macro {
+            background: var(--slate-50);
+            padding: 2rem;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .basket-macro .big-price {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin: 1rem 0;
+        }
+
+        .horizontal-bar-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .h-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 0.4rem;
+        }
+
+        .h-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: var(--slate-100);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .h-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            border-top: 1px solid var(--slate-200);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            font-weight: bold;
+            color: var(--slate-400);
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 900px) {
+            .split-grid, .basket-grid { grid-template-columns: 1fr; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="logo-box">T</div>
+            <div class="title-group">
+                <h1>Performance : Tract Digital</h1>
+            </div>
+        </div>
+        <div class="filters">
+            <div class="filter-item">
+                <span>Campagne:</span>
+                <select id="campagneSelect">
+                    <option>Tract Pâques</option>
+                    <option>Tract Printemps</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <span>Période:</span>
+                <select>
+                    <option>01/04 - 15/04</option>
+                    <option>Dernier mois</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- STRATE 1 -->
+        <section>
+            <div class="section-header">
+                <h2>1. Bilan Flash & Benchmarks <span style="color: var(--slate-400); font-weight: normal;">(Hero Metrics)</span></h2>
+            </div>
+            <div class="hero-grid">
+                <div class="card hero-card">
+                    <span class="label">Entrées Tract</span>
+                    <div class="sub-value">1.5M Vues → 45.2k Clics</div>
+                    <div class="value">3.01% <small style="font-size: 1rem; color: var(--slate-400)">CTR</small></div>
+                    <div class="badge badge-success">▲ +0.5 pts vs N-1</div>
+                </div>
+                <div class="card hero-card">
+                    <span class="label">Temps Moyen</span>
+                    <div class="sub-value">Attention sur catalogue</div>
+                    <div class="value">02m 45s</div>
+                    <div class="badge badge-info">▲ +10s vs N-1</div>
+                    <div class="badge badge-info">▲ +45s vs Site</div>
+                </div>
+                <div class="card hero-card">
+                    <span class="label">Taux de Rebond</span>
+                    <div class="sub-value">Déperdition à l'entrée</div>
+                    <div class="value">42%</div>
+                    <div class="badge badge-success">▼ -2 pts vs N-1</div>
+                </div>
+                <div class="card roi-card">
+                    <span class="label" style="color: var(--slate-500)">ROI Business</span>
+                    <div class="value">124 500 € <small style="font-size: 0.8rem">CA</small></div>
+                    <div class="sub-box">
+                        <div>
+                            <div style="font-size: 0.6rem; color: var(--slate-400)">ROAS</div>
+                            <div style="font-size: 1.2rem; font-weight: 900; color: var(--success)">x 8.3</div>
+                        </div>
+                        <div style="text-align: right">
+                            <div style="font-size: 0.6rem; color: var(--slate-400)">INV.</div>
+                            <div style="font-size: 0.9rem; font-weight: bold">15 000 €</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STRATE 2 -->
+        <section class="card">
+            <div class="section-header">
+                <h2>2. Acquisition & Rentabilité <span style="color: var(--slate-400); font-weight: normal;">(Performance des sources)</span></h2>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <div class="dot-bar"></div>
+                        <span>% Trafic</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="dot-line"></div>
+                        <span style="color: #db2777;">Coût Source (€)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-container">
+                <div class="y-axis">
+                    <div class="grid-line"><span>5000€</span></div>
+                    <div class="grid-line"><span>4000€</span></div>
+                    <div class="grid-line"><span>3000€</span></div>
+                    <div class="grid-line"><span>2000€</span></div>
+                    <div class="grid-line"><span>1000€</span></div>
+                    <div class="grid-line"><span>0€</span></div>
+                </div>
+
+                <!-- Barres de Trafic -->
+                <div class="bar-group">
+                    <div class="bar" style="height: 200px;">
+                        <span class="bar-label">50%</span>
+                    </div>
+                    <span class="source-name">Social Ads</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 160px;">
+                        <span class="bar-label">40%</span>
+                    </div>
+                    <span class="source-name">Emailing</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 40px;">
+                        <span class="bar-label">10%</span>
+                    </div>
+                    <span class="source-name">SMS</span>
+                </div>
+                <div class="bar-group">
+                    <div class="bar" style="height: 20px;">
+                        <span class="bar-label">5%</span>
+                    </div>
+                    <span class="source-name">Organique</span>
+                </div>
+
+                <!-- Ligne de Coût SVG -->
+                <svg class="cost-line-svg" viewBox="0 0 1000 300" preserveAspectRatio="none">
+                    <!-- Points calculés par rapport aux données -->
+                    <polyline fill="none" stroke="#f472b6" stroke-width="4" stroke-dasharray="8"
+                        points="125,20 375,40 625,180 875,250" />
+                    <!-- Cercles points -->
+                    <circle cx="125" cy="20" r="8" fill="#db2777" />
+                    <circle cx="375" cy="40" r="8" fill="#db2777" />
+                    <circle cx="625" cy="180" r="8" fill="#db2777" />
+                    <circle cx="875" cy="250" r="8" fill="#db2777" />
+                </svg>
+            </div>
+        </section>
+
+        <!-- STRATE 3 -->
+        <section class="split-grid">
+            <div class="card gauge-container">
+                <div class="section-header" style="width: 100%;">
+                    <h2>Engagement</h2>
+                </div>
+                <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+                    <svg class="gauge-svg">
+                        <circle class="gauge-bg" cx="90" cy="90" r="80" />
+                        <circle class="gauge-fill" cx="90" cy="90" r="80" id="gaugeCircle" />
+                    </svg>
+                    <div class="gauge-text">
+                        <span class="pct">42%</span>
+                        <span class="txt">Taux retour</span>
+                    </div>
+                </div>
+                <p style="font-size: 0.7rem; color: var(--success); font-weight: bold; margin-top: 1rem;">▲ +5 pts vs N-1</p>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <h2>3. Palmarès Produits <span style="font-size: 0.7rem; color: var(--slate-400); text-transform: none; margin-left: 0.5rem;">(Trié par ratio conversion)</span></h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Visuel</th>
+                            <th>Nom Produit</th>
+                            <th style="text-align: center">Vues</th>
+                            <th style="text-align: center">Clics</th>
+                            <th style="text-align: right">Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTable">
+                        <!-- Généré par JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- STRATE 4 -->
+        <section class="card">
+            <div class="section-header">
+                <h2>4. Qualité de Conversion <span style="color: var(--slate-400); font-weight: normal;">(Focus Panier)</span></h2>
+            </div>
+            <div class="basket-grid">
+                <div class="basket-macro">
+                    <span style="font-size: 0.7rem; font-weight: bold; color: var(--slate-500); text-transform: uppercase;">Panier Moyen Global</span>
+                    <div class="big-price">85,50 €</div>
+                    <div style="display: flex; gap: 1rem;">
+                        <span style="color: var(--success); font-weight: bold; font-size: 0.8rem;">▲ +4.00€ vs N-1</span>
+                        <span style="color: var(--primary); font-weight: bold; font-size: 0.8rem;">▲ +12.50€ vs LP</span>
+                    </div>
+                    <p style="margin-top: 2rem; font-size: 0.8rem; font-style: italic; color: var(--slate-500);">
+                        💡 Le tract génère des paniers 12,50€ plus élevés qu'une Landing Page classique.
+                    </p>
+                </div>
+                <div id="basketSources">
+                    <!-- Généré par JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <span>© 2025 Performance Catalog Digital</span>
+        <span>Mise à jour : 1h30min ago</span>
+    </footer>
+
+    <script>
+        // Données des produits
+        const products = [
+            { icon: '🧺', name: 'Panière', vues: '15k', clics: '1 900', ratio: '12.6%', status: 'pépite' },
+            { icon: '📱', name: 'Smart stuff', vues: '35k', clics: '2 850', ratio: '8.1%', status: 'top' },
+            { icon: '📺', name: 'Meuble TV', vues: '40k', clics: '3 200', ratio: '8.0%', status: 'top' },
+            { icon: '☕', name: 'Table bassse', vues: '30k', clics: '1 420', ratio: '4.7%', status: '' },
+            { icon: '🧹', name: 'Balai de chantier', vues: '38k', clics: '980', ratio: '2.5%', status: '' }
+        ];
+
+        // Données paniers
+        const baskets = [
+            { label: 'Emailing', value: 92 },
+            { label: 'Organique', value: 85 },
+            { label: 'Social Ads', value: 78 },
+            { label: 'SMS', value: 65 }
+        ];
+
+        // Remplir la table des produits
+        const tableBody = document.getElementById('productTable');
+        products.forEach(p => {
+            const row = `
+                <tr>
+                    <td><div class="prod-img">${p.icon}</div></td>
+                    <td>
+                        <div style="font-weight: bold">${p.name}</div>
+                        ${p.status === 'pépite' ? '<span style="font-size: 9px; color: var(--warning); font-weight: 900; text-transform: uppercase;">Pépite ✨</span>' : ''}
+                    </td>
+                    <td style="text-align: center; color: var(--slate-500)">${p.vues}</td>
+                    <td style="text-align: center; color: var(--slate-500)">${p.clics}</td>
+                    <td style="text-align: right"><span class="ratio-tag">${p.ratio}</span></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+
+        // Remplir les barres de paniers
+        const basketContainer = document.getElementById('basketSources');
+        baskets.forEach(b => {
+            const pct = (b.value / 92) * 100;
+            const bar = `
+                <div class="horizontal-bar-group">
+                    <div class="h-bar-label">
+                        <span>${b.label}</span>
+                        <span>${b.value} €</span>
+                    </div>
+                    <div class="h-bar-bg">
+                        <div class="h-bar-fill" style="width: ${pct}%; background: ${b.value > 85 ? 'var(--primary)' : 'var(--slate-400)'}"></div>
+                    </div>
+                </div>
+            `;
+            basketContainer.innerHTML += bar;
+        });
+
+        // Simulation interaction filtre
+        document.getElementById('campagneSelect').addEventListener('change', (e) => {
+            console.log("Filtrage sur : " + e.target.value);
+        });
+    </script>
+</body>
+</html>
